@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from app.db.deps import get_db
 from app.schemas.message import MessageCreate, MessageOut
 from app.crud.message import create_message, get_channel_messages
-from app.core.dependincies import get_current_user
+from app.core.dependencies import get_current_user
 
 router = APIRouter(prefix="/messages", tags=["Messages"])
 
