@@ -4,6 +4,7 @@ from app.db.deps import get_db
 from app.schemas.message import MessageCreate, MessageOut
 from app.crud.message import create_message, get_channel_messages
 from app.core.dependencies import get_current_user
+from app.core.permission import validate_channel_member
 
 router = APIRouter(prefix="/messages", tags=["Messages"])
 
@@ -14,6 +15,12 @@ def send_message(
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
 ):
+    validate_channel_member(
+        db,
+        msg.channel_id,
+        current_user.id
+    )
+
     return create_message(
         db,
         msg.content,
@@ -23,5 +30,16 @@ def send_message(
 
 
 @router.get("/{channel_id}", response_model=list[MessageOut])
-def read_messages(channel_id: int, db: Session = Depends(get_db)):
+def read_messages(
+    channel_id: int, 
+    db: Session = Depends(get_db),
+    current_user = Depends(get_current_user)
+    
+    ):
+
+    validate_channel_member(
+        db,
+        channel_id,
+        current_user.id
+    )
     return get_channel_messages(db, channel_id)
