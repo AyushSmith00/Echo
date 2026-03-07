@@ -22,8 +22,13 @@ def get_current_user(
             algorithms=[settings.ALGORITHM]
         )
         user_id = int(payload.get("sub"))
+        
     except JWTError:
         raise HTTPException(status_code=401, detail="Invalid token")
+    
+    if payload.get("type") != "access":
+        raise HTTPException(status_code=401, detail="Invalid token type")
+
 
     user = db.query(User).filter(User.id == user_id).first()
 

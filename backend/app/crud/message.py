@@ -11,5 +11,5 @@ def create_message(db: Session ,content:str , user_id:int, channel_id:int):
 
     return message
 
-def get_channel_messages(db:Session, channel_id:int):
-    return db.query(Message).filter(Message.channel_id==channel_id).all()
+def get_channel_messages(db:Session, channel_id:int, limit=50, offset=0):
+    return db.query(Message).filter(Message.channel_id==channel_id).order_by(Message.created_at.desc()).offset(offset).limit(limit).all()

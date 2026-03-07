@@ -31,7 +31,9 @@ def send_message(
 
 @router.get("/{channel_id}", response_model=list[MessageOut])
 def read_messages(
-    channel_id: int, 
+    channel_id: int,
+    limit: int=50,
+    offset: int = 0,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
     
@@ -42,4 +44,4 @@ def read_messages(
         channel_id,
         current_user.id
     )
-    return get_channel_messages(db, channel_id)
+    return get_channel_messages(db, channel_id, limit,offset)
