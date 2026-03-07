@@ -41,3 +41,17 @@ def validate_server_admin(db, server_id: int, user_id: int):
         raise HTTPException(status_code=403, detail="Admin required")
     
     return True
+
+def validate_server_members(db, server_id, user_id):
+
+    membership = db.execute(
+        server_members.select().where(
+            server_members.c.user_id == user_id,
+            server_members.c.server_id == server_id
+        )
+    ).first()
+
+    if not membership:
+        raise HTTPException(status_code=403, detail="not a member of this server")
+    
+    return True

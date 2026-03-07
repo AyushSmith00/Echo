@@ -3,7 +3,7 @@ from app.crud.channel import create_channel, get_server_channel
 from app.core.dependencies import get_current_user
 from app.db.deps import get_db
 from app.models.user import User
-from app.core.permission import validate_server_admin
+from app.core.permission import validate_server_admin, validate_server_members
 from sqlalchemy.orm import Session
 
 router = APIRouter()
@@ -33,7 +33,7 @@ def get_channel(
     current_user: User = Depends(get_current_user)
     ):
 
-    validate_server_admin(db, server_id, current_user.id)
+    validate_server_members(db, server_id, current_user.id)
 
     channels = get_server_channel(db, server_id)
 
