@@ -1,6 +1,8 @@
 from app.models.server import Server
 from app.models.association import server_members
 from app.models.user import User
+from app.models.server_member import ServerMembers
+from fastapi import HTTPException
 
 def create_server(db, name: str, user_id: int):
 
@@ -10,20 +12,56 @@ def create_server(db, name: str, user_id: int):
     db.commit()
     db.refresh(new_server)
 
-    db.execute(
-        server_members.insert().values(
-            user_id = user_id,
-            server_id = new_server.id,
-            is_admin = True
-        )
+    membership = ServerMembers(
+        server_id=new_server.id,
+        user_id=user_id,
+        is_admin=True
     )
 
+    db.add(membership)
     db.commit()
 
     return new_server
 
+
 def get_user_servers(db, user_id: int):
 
-    user = db.query().filter(User.id == user_id).first()
+    servers = (
+        db.query(Server)
+        .join(server_members, Server.id == server_members.c.server_id)
+        .filter(server_members.c.user_id == user_id)
+        .all()
+    )
 
-    return user
+    return servers
+
+def get_server_by_id(db, server_id:int ):
+
+    return db.query(Server).filter(Server.id == server_id).first()
+
+def join_servers(db, user_id:int , server_id:int):
+
+    server = db.query(Server).filter(Server.id == server_id).first()
+
+    if not server:
+        raise HTTPException(status_code=404, detail="Server not Found")
+    
+    existing_member = db.query(ServerMembers).filter(
+        ServerMembers.server_id == server_id,
+        ServerMembers.user_id == user_id
+    ).first()
+
+    if existing_member:
+        raise HTTPException(status_code=400, detail="user already in server")
+    
+    membership = ServerMembers(
+        server_id=server_id,
+        user_id=user_id,
+        is_admin=False
+    )
+
+    db.add(membership)
+    db.commit()
+    db.refresh(membership)
+
+    return membership

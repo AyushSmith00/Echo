@@ -14,4 +14,3 @@ class Server(Base):
         secondary=server_members,
         back_populates="servers"
     )
-

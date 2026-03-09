@@ -42,7 +42,7 @@ def validate_server_admin(db, server_id: int, user_id: int):
     
     return True
 
-def validate_server_members(db, server_id, user_id):
+def validate_server_member(db, server_id, user_id):
 
     membership = db.execute(
         server_members.select().where(

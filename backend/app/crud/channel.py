@@ -13,5 +13,5 @@ def create_channel(db, name:str, server_id: int):
 def get_server_channel(db: Session, server_id: int):
 
     return(
-        db.execute(Channel).filter(Channel.server_id == server_id).all()
+        db.query(Channel).filter(Channel.server_id == server_id).all()
     )
