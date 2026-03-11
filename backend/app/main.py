@@ -1,7 +1,8 @@
 from fastapi import FastAPI
 from app.db.database import engine, Base
-from app.models import user, server, association, channel,message
-from app.routes import server, user, channel,message, auth
+from app.models import user, server, server_member, channel,message
+from app.routes import server, user, channel, message, auth
+from app.websocket import ws_chat
 
 Base.metadata.create_all(bind=engine)
 
@@ -17,3 +18,4 @@ app.include_router(user.router)
 app.include_router(channel.router)
 app.include_router(message.router)
 app.include_router(auth.router)
+app.include_router(ws_chat.router)

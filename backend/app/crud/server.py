@@ -1,5 +1,4 @@
 from app.models.server import Server
-from app.models.association import server_members
 from app.models.user import User
 from app.models.server_member import ServerMembers
 from fastapi import HTTPException
@@ -28,8 +27,8 @@ def get_user_servers(db, user_id: int):
 
     servers = (
         db.query(Server)
-        .join(server_members, Server.id == server_members.c.server_id)
-        .filter(server_members.c.user_id == user_id)
+        .join(ServerMembers, Server.id == ServerMembers.c.server_id)
+        .filter(ServerMembers.c.user_id == user_id)
         .all()
     )
 

@@ -1,7 +1,7 @@
 from sqlalchemy import Column, Integer, String
 from sqlalchemy.orm import relationship
 from app.db.database import Base
-from app.models.association import server_members
+from app.models.server_member import ServerMembers
 
 
 class User(Base):
@@ -14,6 +14,6 @@ class User(Base):
 
     servers = relationship(
         "Server",
-        secondary=server_members,
+        secondary=ServerMembers,
         back_populates="members"
     )
