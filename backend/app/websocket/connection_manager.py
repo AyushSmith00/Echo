@@ -7,7 +7,7 @@ class ConnectionManager:
         self.active_connections: Dict[int, List[WebSocket]] = {}
 
     async def connect(self, channel_id: int, websocket: WebSocket):
-        await WebSocket.accept()
+        await websocket.accept()
 
         if channel_id not in self.active_connections:
             self.active_connections[channel_id] = []
