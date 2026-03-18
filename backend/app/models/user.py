@@ -13,7 +13,6 @@ class User(Base):
     hashed_password = Column(String, nullable=False)
 
     servers = relationship(
-        "Server",
-        secondary=ServerMembers,
-        back_populates="members"
+        "ServerMembers",
+        back_populates="user"
     )

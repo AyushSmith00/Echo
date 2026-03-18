@@ -10,7 +10,6 @@ class Server(Base):
     name = Column(String)
 
     members = relationship(
-        "User",
-        secondary=ServerMembers,
-        back_populates="servers"
+        "ServerMembers",
+        back_populates="server"
     )
