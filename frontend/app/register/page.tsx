@@ -46,37 +46,66 @@ export default function registerPage() {
     }
 
     return (
-    <div>
-      <h1>Register</h1>
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
+            
+            <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl border border-gray-700">
+                
+                <h1 className="text-2xl sm:text-3xl font-bold text-white text-center mb-6">
+                    Create Account 🚀
+                </h1>
 
-      <input
-          type="text"
-          placeholder="Username"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-      />
-      <br /><br />
+                <div className="space-y-4">
 
-      <input
-          type="email"
-          placeholder="Email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-      />
-      <br /><br />
+                    <input
+                        type="text"
+                        placeholder="Username"
+                        value={username}
+                        onChange={(e) => setUsername(e.target.value)}
+                        className="w-full p-3 sm:p-4 rounded-xl bg-gray-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-500 transition"
+                    />
 
-      <input
-          type="password"
-          placeholder="Password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-      />
-      <br /><br />
+                    <input
+                        type="email"
+                        placeholder="Email"
+                        value={email}
+                        onChange={(e) => setEmail(e.target.value)}
+                        className="w-full p-3 sm:p-4 rounded-xl bg-gray-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-500 transition"
+                    />
 
-      <button onClick={registerUser} disabled={loading}>
-          {loading ? "Registering..." : "Register"}
-      </button>
-    </div>
-  )
+                    <input
+                        type="password"
+                        placeholder="Password"
+                        value={password}
+                        onChange={(e) => setPassword(e.target.value)}
+                        className="w-full p-3 sm:p-4 rounded-xl bg-gray-700 text-white placeholder-gray-400 outline-none focus:ring-2 focus:ring-green-500 transition"
+                    />
+
+                    <button
+                        onClick={registerUser}
+                        disabled={loading}
+                        className="w-full p-3 sm:p-4 rounded-xl bg-green-600 hover:bg-green-700 active:scale-[0.98] transition-all font-semibold text-white disabled:opacity-50"
+                    >
+                        {loading ? "Creating..." : "Register"}
+                    </button>
+                </div>
+
+                {/* Divider */}
+                <div className="my-6 flex items-center">
+                    <div className="flex-1 h-px bg-gray-600"></div>
+                    <span className="px-3 text-gray-400 text-sm">or</span>
+                    <div className="flex-1 h-px bg-gray-600"></div>
+                </div>
+
+                {/* Login redirect */}
+                <p className="text-center text-gray-400 text-sm">
+                    Already have an account?{" "}
+                    <a href="/login" className="text-green-400 hover:underline">
+                        Login
+                    </a>
+                </p>
+            </div>
+        </div>
+    )
+
 
 }
