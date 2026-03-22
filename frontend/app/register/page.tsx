@@ -46,7 +46,7 @@ export default function registerPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
+        <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
             
             <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl border border-gray-700">
                 
@@ -89,14 +89,12 @@ export default function registerPage() {
                     </button>
                 </div>
 
-                {/* Divider */}
                 <div className="my-6 flex items-center">
                     <div className="flex-1 h-px bg-gray-600"></div>
                     <span className="px-3 text-gray-400 text-sm">or</span>
                     <div className="flex-1 h-px bg-gray-600"></div>
                 </div>
 
-                {/* Login redirect */}
                 <p className="text-center text-gray-400 text-sm">
                     Already have an account?{" "}
                     <a href="/login" className="text-green-400 hover:underline">
