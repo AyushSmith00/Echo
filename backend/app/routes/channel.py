@@ -8,19 +8,18 @@ from sqlalchemy.orm import Session
 
 router = APIRouter()
 
-@router.post("servers/{server_id}/channels")
+@router.post("/servers/{server_id}/channels")
 def create_channel_route(
     name: str, 
     server_id: int, 
-    db=Depends(get_db),
+    db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
-    ):
-
+):
     validate_server_admin(db, server_id, current_user.id)
     
     channel = create_channel(db, name, server_id)
 
-    return{
+    return {
         "id": channel.id,
         "name": channel.name,
         "server_id": channel.server_id
@@ -28,11 +27,10 @@ def create_channel_route(
 
 @router.get("/servers/{server_id}/channels")
 def get_channel(
-    server_id:int,
+    server_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
-    ):
-
+):
     validate_server_member(db, server_id, current_user.id)
 
     channels = get_server_channel(db, server_id)
