@@ -1,8 +1,9 @@
-from fastapi import APIRouter, Depends
-from app.crud.channel import create_channel, get_server_channel
+from fastapi import APIRouter, Depends, HTTPException
+from app.crud.channel import create_channel, get_server_channel, delete_channel
 from app.core.dependencies import get_current_user
 from app.db.deps import get_db
 from app.models.user import User
+from app.models.channel import Channel
 from app.core.permission import validate_server_admin, validate_server_member
 from sqlalchemy.orm import Session
 
@@ -36,3 +37,16 @@ def get_channel(
     channels = get_server_channel(db, server_id)
 
     return channels
+
+@router.delete("/channels/{channel_id}")
+def delete_channel_routes(channel_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
+
+    if not channel:
+        raise HTTPException(status_code=404, detail="Channel not Found")
+    
+    validate_server_admin(db, channel.server_id, current_user.id)
+
+    delete_channel(db, channel_id)
+
+    return{"message": "Channel deleted Successfully"}

@@ -63,3 +63,14 @@ def join_servers(db, user_id: int, server_id: int):
     db.refresh(membership)
 
     return membership
+
+def delete_server(db, server_id:int):
+    server = db.query(Server).filter(Server.id == server_id).first()
+
+    if not server:
+        return None
+    
+    db.delete(server)
+    db.commit()
+
+    return server

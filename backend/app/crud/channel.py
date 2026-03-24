@@ -15,3 +15,14 @@ def get_server_channel(db: Session, server_id: int):
     return(
         db.query(Channel).filter(Channel.server_id == server_id).all()
     )
+
+def delete_channel(db: Session, channel_id: int):
+    channel = db.query(Channel).filter(Channel.id == channel_id).first()
+
+    if not channel:
+        return None
+    
+    db.delete(channel)
+    db.commit()
+
+    return channel

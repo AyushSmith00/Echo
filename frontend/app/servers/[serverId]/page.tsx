@@ -17,15 +17,17 @@ type Channel = {
 export default function ServerPage() {
   const router = useRouter();
   const params = useParams();
+
   const serverId = params.serverId as string;
 
   const [server, setServer] = useState<Server | null>(null);
   const [channels, setChannels] = useState<Channel[]>([]);
   const [channelName, setChannelName] = useState("");
 
-  const [loadingServer, setLoadingServer] = useState(true);
-  const [loadingChannels, setLoadingChannels] = useState(true);
-  const [creatingChannel, setCreatingChannel] = useState(false);
+  const [loading, setLoading] = useState(true);
+  const [createLoading, setCreateLoading] = useState(false);
+  const [deleteServerLoading, setDeleteServerLoading] = useState(false);
+  const [deletingChannelId, setDeletingChannelId] = useState<number | null>(null);
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
@@ -39,13 +41,7 @@ export default function ServerPage() {
     return null;
   };
 
-  const handleUnauthorized = () => {
-    localStorage.removeItem("token");
-    localStorage.removeItem("refresh_token");
-    router.push("/login");
-  };
-
-  const fetchServer = async () => {
+  const fetchServerData = async () => {
     const token = getToken();
 
     if (!token) {
@@ -54,76 +50,45 @@ export default function ServerPage() {
     }
 
     try {
-      setLoadingServer(true);
+      setLoading(true);
       setError("");
 
-      const response = await fetch(`${API_URL}/servers/${serverId}`, {
-        method: "GET",
+      const serverRes = await fetch(`${API_URL}/servers/${serverId}`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const data = await response.json();
+      const serverData = await serverRes.json();
 
-      if (response.status === 401) {
-        handleUnauthorized();
-        return;
+      if (!serverRes.ok) {
+        throw new Error(serverData.detail || "Failed to fetch server");
       }
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Failed to fetch server");
-      }
+      setServer(serverData);
 
-      setServer(data);
-    } catch (err: any) {
-      setError(err.message || "Something went wrong");
-    } finally {
-      setLoadingServer(false);
-    }
-  };
-
-  const fetchChannels = async () => {
-    const token = getToken();
-
-    if (!token) {
-      router.push("/login");
-      return;
-    }
-
-    try {
-      setLoadingChannels(true);
-      setError("");
-
-      const response = await fetch(`${API_URL}/servers/${serverId}/channels`, {
-        method: "GET",
+      const channelRes = await fetch(`${API_URL}/servers/${serverId}/channels`, {
         headers: {
           Authorization: `Bearer ${token}`,
         },
       });
 
-      const data = await response.json();
+      const channelData = await channelRes.json();
 
-      if (response.status === 401) {
-        handleUnauthorized();
-        return;
+      if (!channelRes.ok) {
+        throw new Error(channelData.detail || "Failed to fetch channels");
       }
 
-      if (!response.ok) {
-        throw new Error(data.detail || "Failed to fetch channels");
-      }
-
-      setChannels(data);
+      setChannels(channelData);
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
-      setLoadingChannels(false);
+      setLoading(false);
     }
   };
 
   useEffect(() => {
-    fetchServer();
-    fetchChannels();
+    fetchServerData();
   }, [serverId]);
 
   const handleCreateChannel = async (e: React.FormEvent) => {
@@ -142,7 +107,7 @@ export default function ServerPage() {
     }
 
     try {
-      setCreatingChannel(true);
+      setCreateLoading(true);
       setError("");
       setSuccess("");
 
@@ -158,22 +123,93 @@ export default function ServerPage() {
 
       const data = await response.json();
 
-      if (response.status === 401) {
-        handleUnauthorized();
-        return;
-      }
-
       if (!response.ok) {
         throw new Error(data.detail || "Failed to create channel");
       }
 
       setSuccess("Channel created successfully");
       setChannelName("");
-      fetchChannels();
+      fetchServerData();
     } catch (err: any) {
       setError(err.message || "Something went wrong");
     } finally {
-      setCreatingChannel(false);
+      setCreateLoading(false);
+    }
+  };
+
+  const handleDeleteChannel = async (channelId: number) => {
+    const confirmed = window.confirm("Delete this channel?");
+    if (!confirmed) return;
+
+    const token = getToken();
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      setDeletingChannelId(channelId);
+      setError("");
+      setSuccess("");
+
+      const response = await fetch(`${API_URL}/channels/${channelId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to delete channel");
+      }
+
+      setSuccess("Channel deleted successfully");
+      fetchServerData();
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setDeletingChannelId(null);
+    }
+  };
+
+  const handleDeleteServer = async () => {
+    const confirmed = window.confirm("Delete this server?");
+    if (!confirmed) return;
+
+    const token = getToken();
+
+    if (!token) {
+      router.push("/login");
+      return;
+    }
+
+    try {
+      setDeleteServerLoading(true);
+      setError("");
+      setSuccess("");
+
+      const response = await fetch(`${API_URL}/servers/${serverId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.detail || "Failed to delete server");
+      }
+
+      alert("Server deleted successfully");
+      router.push("/dashboard");
+    } catch (err: any) {
+      setError(err.message || "Something went wrong");
+    } finally {
+      setDeleteServerLoading(false);
     }
   };
 
@@ -181,25 +217,38 @@ export default function ServerPage() {
     router.push(`/channels/${channelId}`);
   };
 
+  const handleBack = () => {
+    router.push("/dashboard");
+  };
+
   return (
     <main className="min-h-screen bg-linear-to-br from-gray-950 via-slate-900 to-black px-4 py-8 text-white">
       <div className="mx-auto max-w-6xl">
         <div className="mb-8 flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md md:flex-row md:items-center md:justify-between">
           <div>
+            <h1 className="text-3xl font-bold">
+              {server ? server.name : "Server"}
+            </h1>
+            <p className="mt-2 text-sm text-gray-300">
+              Manage channels and open chat rooms.
+            </p>
+          </div>
+
+          <div className="flex gap-3">
             <button
-              onClick={() => router.push("/dashboard")}
-              className="mb-3 rounded-xl border border-white/10 px-4 py-2 text-sm text-gray-300 transition hover:bg-white/10"
+              onClick={handleBack}
+              className="rounded-2xl bg-white/10 px-5 py-3 text-sm font-semibold transition hover:bg-white/20"
             >
-              ← Back to Dashboard
+              Back
             </button>
 
-            <h1 className="text-3xl font-bold md:text-4xl">
-              {loadingServer ? "Loading server..." : server?.name || "Server"}
-            </h1>
-
-            <p className="mt-2 text-sm text-gray-300">
-              Create channels and enter the server chat.
-            </p>
+            <button
+              onClick={handleDeleteServer}
+              disabled={deleteServerLoading}
+              className="rounded-2xl bg-red-600 px-5 py-3 text-sm font-semibold transition hover:bg-red-500 disabled:opacity-70"
+            >
+              {deleteServerLoading ? "Deleting..." : "Delete Server"}
+            </button>
           </div>
         </div>
 
@@ -220,10 +269,10 @@ export default function ServerPage() {
         )}
 
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md lg:col-span-1">
             <h2 className="text-xl font-semibold">Create Channel</h2>
             <p className="mt-2 text-sm text-gray-400">
-              Admins can create new channels for this server.
+              Add a new channel inside this server.
             </p>
 
             <form onSubmit={handleCreateChannel} className="mt-6 space-y-4">
@@ -237,53 +286,61 @@ export default function ServerPage() {
 
               <button
                 type="submit"
-                disabled={creatingChannel}
-                className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+                disabled={createLoading}
+                className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold transition hover:bg-blue-500 disabled:opacity-70"
               >
-                {creatingChannel ? "Creating..." : "Create Channel"}
+                {createLoading ? "Creating..." : "Create Channel"}
               </button>
             </form>
           </div>
 
-          <div className="lg:col-span-2 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md lg:col-span-2">
             <div className="mb-6">
               <h2 className="text-2xl font-semibold">Channels</h2>
               <p className="mt-1 text-sm text-gray-400">
-                Open a channel to view and send messages.
+                Open a channel or delete one.
               </p>
             </div>
 
-            {loadingChannels ? (
+            {loading ? (
               <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-gray-300">
                 Loading channels...
               </div>
             ) : channels.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-gray-400">
-                No channels yet. Create the first one.
+                No channels yet. Create your first one.
               </div>
             ) : (
-              <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              <div className="space-y-4">
                 {channels.map((channel) => (
-                  <button
+                  <div
                     key={channel.id}
-                    onClick={() => handleOpenChannel(channel.id)}
-                    className="rounded-3xl border border-white/10 bg-black/20 p-5 text-left transition hover:border-blue-400 hover:bg-white/10"
+                    className="flex flex-col gap-4 rounded-3xl border border-white/10 bg-black/20 p-5 md:flex-row md:items-center md:justify-between"
                   >
-                    <div className="flex items-center justify-between">
-                      <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-indigo-600 text-lg font-bold">
-                        #
-                      </div>
-
-                      <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-gray-300">
-                        ID: {channel.id}
-                      </span>
+                    <div>
+                      <h3 className="text-lg font-semibold"># {channel.name}</h3>
+                      <p className="mt-1 text-sm text-gray-400">
+                        Channel ID: {channel.id}
+                      </p>
                     </div>
 
-                    <h3 className="mt-4 text-lg font-semibold">{channel.name}</h3>
-                    <p className="mt-2 text-sm text-gray-400">
-                      Click to open this channel.
-                    </p>
-                  </button>
+                    <div className="flex gap-3">
+                      <button
+                        onClick={() => handleOpenChannel(channel.id)}
+                        className="rounded-2xl bg-indigo-600 px-4 py-2 text-sm font-semibold transition hover:bg-indigo-500"
+                      >
+                        Open
+                      </button>
+
+                      <button
+                        onClick={() => handleDeleteChannel(channel.id)}
+                        disabled={deletingChannelId === channel.id}
+                        className="rounded-2xl bg-red-600 px-4 py-2 text-sm font-semibold transition hover:bg-red-500 disabled:opacity-70"
+                      >
+                        {deletingChannelId === channel.id ? "Deleting..." : "Delete"}
+                      </button>
+                    </div>
+                  </div>
                 ))}
               </div>
             )}
