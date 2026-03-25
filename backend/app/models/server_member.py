@@ -14,3 +14,4 @@ class ServerMembers(Base):
 
     user = relationship("User", back_populates="servers")
     server = relationship("Server", back_populates="members")
+

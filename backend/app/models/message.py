@@ -1,18 +1,16 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, DateTime
+from sqlalchemy import Column, Integer, String, ForeignKey, DateTime
 from sqlalchemy.orm import relationship
-from sqlalchemy.sql import func
 from app.db.database import Base
+from datetime import datetime
 
 class Message(Base):
     __tablename__ = "messages"
 
-    id = Column(Integer, primary_key=True, index=True)
-    content = Column(String, nullable=True)
-
-    user_id = Column(Integer, ForeignKey("users.id"))
+    id = Column(Integer, primary_key=True)
+    content = Column(String)
     channel_id = Column(Integer, ForeignKey("channels.id"))
+    user_id = Column(Integer, ForeignKey("users.id"))
+    created_at = Column(DateTime, default=datetime.utcnow)
 
-    created_at = Column(DateTime(timezone=True), server_default=func.now())
+    channel = relationship("Channel", back_populates="messages")
 
-    user = relationship("User")
-    channel = relationship("Channel")

@@ -14,5 +14,6 @@ class User(Base):
 
     servers = relationship(
         "ServerMembers",
-        back_populates="user"
+        back_populates="user",
+        cascade="all, delete-orphan"
     )

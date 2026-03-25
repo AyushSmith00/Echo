@@ -9,4 +9,11 @@ class Channel(Base):
     name = Column(String)
     server_id = Column(Integer, ForeignKey("servers.id"))
 
-    server = relationship("Server", backref="channels")
+    server = relationship("Server", back_populates="channels")
+
+    messages = relationship(
+        "Message",
+        back_populates="channel",
+        cascade="all, delete-orphan"
+    )
+
