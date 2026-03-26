@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 type Server = {
   id: number;
   name: string;
+  invite_code?: string;
 };
 
 export default function DashboardPage() {
@@ -13,7 +14,7 @@ export default function DashboardPage() {
 
   const [servers, setServers] = useState<Server[]>([]);
   const [createName, setCreateName] = useState("");
-  const [joinServerId, setJoinServerId] = useState("");
+  const [inviteCode, setInviteCode] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [createLoading, setCreateLoading] = useState(false);
@@ -111,7 +112,7 @@ export default function DashboardPage() {
         throw new Error(data.detail || "Failed to create server");
       }
 
-      setSuccess("Server created successfully");
+      setSuccess(`Server created successfully! Invite Code: ${data.invite_code}`);
       setCreateName("");
       fetchServers();
     } catch (err: any) {
@@ -124,8 +125,8 @@ export default function DashboardPage() {
   const handleJoinServer = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!joinServerId.trim()) {
-      setError("Server ID is required");
+    if (!inviteCode.trim()) {
+      setError("Invite code is required");
       return;
     }
 
@@ -141,15 +142,16 @@ export default function DashboardPage() {
       setError("");
       setSuccess("");
 
-      const response = await fetch(
-        `${API_URL}/servers/${joinServerId}/join`,
-        {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      );
+      const response = await fetch(`${API_URL}/servers/join-by-code`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          invite_code: inviteCode,
+        }),
+      });
 
       const data = await response.json();
 
@@ -158,7 +160,7 @@ export default function DashboardPage() {
       }
 
       setSuccess("Joined server successfully");
-      setJoinServerId("");
+      setInviteCode("");
       fetchServers();
     } catch (err: any) {
       setError(err.message || "Something went wrong");
@@ -184,7 +186,7 @@ export default function DashboardPage() {
           <div>
             <h1 className="text-3xl font-bold md:text-4xl">Dashboard</h1>
             <p className="mt-2 text-sm text-gray-300 md:text-base">
-              Create a server, join one, or open a server you already belong to.
+              Create a server, join one with invite code, or open a server you already belong to.
             </p>
           </div>
 
@@ -241,15 +243,15 @@ export default function DashboardPage() {
           <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
             <h2 className="text-xl font-semibold">Join Server</h2>
             <p className="mt-2 text-sm text-gray-400">
-              Enter a server ID to join an existing server.
+              Enter an invite code to join an existing server.
             </p>
 
             <form onSubmit={handleJoinServer} className="mt-6 space-y-4">
               <input
-                type="number"
-                placeholder="Enter server ID"
-                value={joinServerId}
-                onChange={(e) => setJoinServerId(e.target.value)}
+                type="text"
+                placeholder="Enter invite code"
+                value={inviteCode}
+                onChange={(e) => setInviteCode(e.target.value)}
                 className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
               />
 
@@ -282,7 +284,7 @@ export default function DashboardPage() {
           <div className="mb-6">
             <h2 className="text-2xl font-semibold">Your Servers</h2>
             <p className="mt-1 text-sm text-gray-400">
-              Open a server to go to its chat page.
+              Open a server to go to its channels.
             </p>
           </div>
 
@@ -313,6 +315,11 @@ export default function DashboardPage() {
                   </div>
 
                   <h3 className="mt-4 text-lg font-semibold">{server.name}</h3>
+
+                  <p className="mt-2 text-sm text-gray-400">
+                    Invite Code: {server.invite_code || "N/A"}
+                  </p>
+
                   <p className="mt-2 text-sm text-gray-400">
                     Click to enter this server.
                   </p>
@@ -325,3 +332,4 @@ export default function DashboardPage() {
     </main>
   );
 }
+

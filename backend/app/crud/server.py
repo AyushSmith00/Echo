@@ -1,10 +1,20 @@
 from app.models.server import Server
 from app.models.server_member import ServerMembers
 from fastapi import HTTPException
+import secrets
+
+
+def generate_invite_code():
+    return secrets.token_hex(3)
 
 
 def create_server(db, name: str, user_id: int):
-    new_server = Server(name=name)
+    invite_code = generate_invite_code()
+
+    new_server = Server(
+        name=name,
+        invite_code=invite_code
+    )
 
     db.add(new_server)
     db.commit()
@@ -64,13 +74,41 @@ def join_servers(db, user_id: int, server_id: int):
 
     return membership
 
-def delete_server(db, server_id:int):
+
+def delete_server(db, server_id: int):
     server = db.query(Server).filter(Server.id == server_id).first()
 
     if not server:
         return None
-    
+
     db.delete(server)
     db.commit()
+
+    return server
+
+
+def join_server_by_invite_code(db, user_id: int, invite_code: str):
+    server = db.query(Server).filter(Server.invite_code == invite_code).first()
+
+    if not server:
+        raise HTTPException(status_code=404, detail="Invalid invite code")
+
+    membership = db.query(ServerMembers).filter(
+        ServerMembers.server_id == server.id,
+        ServerMembers.user_id == user_id
+    ).first()
+
+    if membership:
+        raise HTTPException(status_code=400, detail="User already in server")
+
+    new_membership = ServerMembers(
+        server_id=server.id,
+        user_id=user_id,
+        is_admin=False
+    )
+
+    db.add(new_membership)
+    db.commit()
+    db.refresh(new_membership)
 
     return server

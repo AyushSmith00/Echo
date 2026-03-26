@@ -1,17 +1,20 @@
 "use client"
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
-export default function registerPage() {
+export default function RegisterPage() {
+    const router = useRouter();
+
     const [username, setUsername] = useState("")
     const [email, setEmail] = useState("")
     const [password, setPassword] = useState("")
     const [loading, setLoading] = useState(false)
 
-    const registerUser = async() => {
-      setLoading(true)
-      
-      try {
+    const registerUser = async () => {
+        setLoading(true)
+
+        try {
             const res = await fetch("http://127.0.0.1:8000/register", {
                 method: "POST",
                 headers: {
@@ -32,6 +35,8 @@ export default function registerPage() {
                 setUsername("")
                 setEmail("")
                 setPassword("")
+
+                router.push("/login")
             } else {
                 alert(data.detail || "Something went wrong")
             }
@@ -42,14 +47,12 @@ export default function registerPage() {
         }
 
         setLoading(false)
-
     }
 
     return (
         <div className="min-h-screen flex items-center justify-center bg-linear-to-br from-gray-900 via-gray-800 to-gray-900 px-4">
-            
             <div className="w-full max-w-md bg-gray-800/90 backdrop-blur-md p-6 sm:p-8 rounded-2xl shadow-2xl border border-gray-700">
-                
+
                 <h1 className="text-2xl sm:text-3xl font-bold text-white text-center mb-6">
                     Create Account 🚀
                 </h1>
@@ -104,6 +107,4 @@ export default function registerPage() {
             </div>
         </div>
     )
-
-
 }
