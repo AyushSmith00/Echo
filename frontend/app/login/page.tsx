@@ -27,6 +27,9 @@ export default function LoginPage() {
 
       if (res.ok) {
         localStorage.setItem("token", data.access_token)
+        localStorage.setItem("refresh_token", data.refresh_token)
+        localStorage.setItem("username", data.user.username)
+        
         alert("Login successfully")
         router.push("/dashboard")
       } else {

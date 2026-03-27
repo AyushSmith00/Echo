@@ -19,6 +19,7 @@ type Message = {
   content: string
   channel_id: number
   user_id: number
+  username: string
 }
 
 export default function ChatPage() {
@@ -352,7 +353,7 @@ export default function ChatPage() {
                 className="bg-zinc-900 border border-zinc-800 rounded-2xl p-4 max-w-xl"
               >
                 <p className="text-sm font-semibold text-indigo-400">
-                  User {message.user_id}
+                  User {message.username}
                 </p>
                 <p className="text-zinc-300 mt-1">{message.content}</p>
               </div>

@@ -13,4 +13,5 @@ class Message(Base):
     created_at = Column(DateTime, default=datetime.utcnow)
 
     channel = relationship("Channel", back_populates="messages")
+    user = relationship("User", back_populates="messages")
 

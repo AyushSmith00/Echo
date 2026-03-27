@@ -22,12 +22,23 @@ def send_message(
         current_user.id
     )
 
-    return create_message(
+
+    message =  create_message(
         db,
         msg.content,
         current_user.id,
         msg.channel_id
     )
+
+    return {
+        "id": message.id,
+        "content": message.content,
+        "user_id": message.user_id,
+        "username": current_user.username,
+        "channel_id": message.channel_id,
+        "created_at": message.created_at       
+    }
+
 
 
 @router.get("/{channel_id}", response_model=list[MessageOut])
@@ -37,7 +48,6 @@ def read_messages(
     offset: int = 0,
     db: Session = Depends(get_db),
     current_user = Depends(get_current_user)
-    
     ):
 
     validate_channel_member(
@@ -45,7 +55,19 @@ def read_messages(
         channel_id,
         current_user.id
     )
-    return get_channel_messages(db, channel_id, limit,offset)
+    messages =  get_channel_messages(db, channel_id, limit,offset)
+
+    return [
+        {
+            "id": message.id,
+            "content": message.content,
+            "user_id": message.user_id,
+            "username": message.user.username if message.user else "Unknown",
+            "channel_id": message.channel_id,
+            "created_at": message.created_at
+        }
+        for message in messages
+    ]
 
 @router.delete("/{message_id}")
 def delete_message_route(

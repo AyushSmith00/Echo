@@ -9,6 +9,7 @@ class MessageOut(BaseModel):
     id: int
     content: str
     user_id: int
+    username: str
     channel_id: int
     created_at: datetime
 

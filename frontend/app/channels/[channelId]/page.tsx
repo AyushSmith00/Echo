@@ -7,6 +7,7 @@ type Message = {
   id?: number;
   content: string;
   user_id?: number;
+  username?: string;
   channel_id?: number;
 };
 
@@ -125,6 +126,7 @@ export default function ChannelPage() {
           JSON.stringify({
             content: data.content,
             user_id: data.user_id,
+            username: data.username,
             channel_id: data.channel_id,
             id: data.id,
           })
@@ -175,7 +177,7 @@ export default function ChannelPage() {
                   className="rounded-2xl border border-white/10 bg-black/20 p-4"
                 >
                   <p className="text-sm font-semibold text-indigo-400">
-                    User {message.user_id}
+                    User {message.username || `User ${message.user_id}`}
                   </p>
                   <p className="mt-1 text-gray-200">{message.content}</p>
                 </div>

@@ -20,7 +20,13 @@ def login(data: LoginRequest,  db: Session = Depends(get_db)):
     
     return TokenResponse(
         access_token=create_access_token(user.id),
-        refresh_token=create_refresh_token(user.id)
+        refresh_token=create_refresh_token(user.id),
+        user={
+            "id": user.id,
+            "username": user.username,
+            "email": user.email,
+        }
+        
     )
 
 @router.post("/refresh", response_model=TokenResponse)
@@ -48,5 +54,10 @@ def refresh_token(data: RefreshRequest, db: Session = Depends(get_db)):
 
     return TokenResponse(
         access_token=create_access_token(user_id),
-        refresh_token=create_refresh_token(user_id)
+        refresh_token=create_refresh_token(user_id),
+        user={
+            "id": user.id,
+            "username": user.username,
+            "email": user.email
+        }
     )

@@ -15,6 +15,7 @@ export default function DashboardPage() {
   const [servers, setServers] = useState<Server[]>([]);
   const [createName, setCreateName] = useState("");
   const [inviteCode, setInviteCode] = useState("");
+  const [username, setUsername] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [createLoading, setCreateLoading] = useState(false);
@@ -71,6 +72,11 @@ export default function DashboardPage() {
     if (!token) {
       router.push("/login");
       return;
+    }
+
+    const savedUsername = localStorage.getItem("username");
+    if (savedUsername) {
+      setUsername(savedUsername);
     }
 
     fetchServers();
@@ -176,6 +182,9 @@ export default function DashboardPage() {
   const handleLogout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("user_id")
+    localStorage.removeItem("email")
     router.push("/login");
   };
 
@@ -184,9 +193,13 @@ export default function DashboardPage() {
       <div className="mx-auto max-w-7xl">
         <div className="mb-8 flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold md:text-4xl">Dashboard</h1>
+            <h1 className="text-3xl font-bold md:text-4xl">
+              Dashboard{username ? ` — ${username}` : ""}
+            </h1>
             <p className="mt-2 text-sm text-gray-300 md:text-base">
-              Create a server, join one with invite code, or open a server you already belong to.
+              {username
+                ? `Welcome back, ${username}. Create a server, join one with invite code, or open a server you already belong to.`
+                : "Create a server, join one with invite code, or open a server you already belong to."}
             </p>
           </div>
 
