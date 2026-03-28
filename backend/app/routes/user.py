@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends
 from app.crud.user import create_user
 from app.db.deps import get_db
 from app.schemas.user import UserCreate
+from app.models.user import User
+from app.core.dependencies import get_current_user
 
 router = APIRouter()
 
@@ -14,4 +16,12 @@ def register(user: UserCreate, db=Depends(get_db)):
         "id": registered_user.id,
         "username": registered_user.username,
         "email": registered_user.email
+    }
+
+@router.get("/get_user")
+def get_user(current_user: User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "username": current_user.username,
+        "email": current_user.email
     }
