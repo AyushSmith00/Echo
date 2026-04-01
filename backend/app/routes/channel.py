@@ -11,13 +11,13 @@ router = APIRouter()
 
 @router.post("/servers/{server_id}/channels")
 def create_channel_route(
-    name: str, 
-    server_id: int, 
+    server_id: int,
+    name: str,
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user)
 ):
     validate_server_admin(db, server_id, current_user.id)
-    
+
     channel = create_channel(db, name, server_id)
 
     return {
@@ -35,18 +35,21 @@ def get_channel(
     validate_server_member(db, server_id, current_user.id)
 
     channels = get_server_channel(db, server_id)
-
     return channels
 
 @router.delete("/channels/{channel_id}")
-def delete_channel_routes(channel_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+def delete_channel_routes(
+    channel_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     channel = db.query(Channel).filter(Channel.id == channel_id).first()
 
     if not channel:
-        raise HTTPException(status_code=404, detail="Channel not Found")
-    
+        raise HTTPException(status_code=404, detail="Channel not found")
+
     validate_server_admin(db, channel.server_id, current_user.id)
 
     delete_channel(db, channel_id)
 
-    return{"message": "Channel deleted Successfully"}
+    return {"message": "Channel deleted successfully"}

@@ -9,6 +9,8 @@ type Server = {
   invite_code?: string;
 };
 
+const API_URL = "http://localhost:8000";
+
 export default function DashboardPage() {
   const router = useRouter();
 
@@ -23,8 +25,6 @@ export default function DashboardPage() {
 
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
-
-  const API_URL = "http://localhost:8000";
 
   const getToken = () => {
     if (typeof window !== "undefined") {
@@ -75,9 +75,7 @@ export default function DashboardPage() {
     }
 
     const savedUsername = localStorage.getItem("username");
-    if (savedUsername) {
-      setUsername(savedUsername);
-    }
+    if (savedUsername) setUsername(savedUsername);
 
     fetchServers();
   }, []);
@@ -118,7 +116,7 @@ export default function DashboardPage() {
         throw new Error(data.detail || "Failed to create server");
       }
 
-      setSuccess(`Server created successfully! Invite Code: ${data.invite_code}`);
+      setSuccess(`Server created! Invite code: ${data.invite_code}`);
       setCreateName("");
       fetchServers();
     } catch (err: any) {
@@ -183,29 +181,34 @@ export default function DashboardPage() {
     localStorage.removeItem("token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
-    localStorage.removeItem("user_id")
-    localStorage.removeItem("email")
+    localStorage.removeItem("user_id");
+    localStorage.removeItem("email");
     router.push("/login");
   };
 
   return (
-    <main className="min-h-screen bg-linear-to-br from-gray-950 via-slate-900 to-black px-4 py-8 text-white">
-      <div className="mx-auto max-w-7xl">
-        <div className="mb-8 flex flex-col gap-4 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md md:flex-row md:items-center md:justify-between">
+    <main className="min-h-screen bg-black text-white">
+      <div className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top_left,_rgba(59,130,246,0.18),_transparent_20%),radial-gradient(circle_at_top_right,_rgba(168,85,247,0.15),_transparent_25%),radial-gradient(circle_at_bottom,_rgba(16,185,129,0.12),_transparent_30%)]" />
+
+      <div className="mx-auto max-w-7xl px-4 py-8">
+        
+        <div className="mb-8 flex flex-col gap-5 rounded-[32px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl md:flex-row md:items-center md:justify-between">
           <div>
-            <h1 className="text-3xl font-bold md:text-4xl">
-              Dashboard{username ? ` — ${username}` : ""}
+            <p className="text-sm uppercase tracking-[0.2em] text-blue-400">
+              Control Center
+            </p>
+            <h1 className="mt-2 text-3xl font-bold md:text-5xl">
+              {username ? `Welcome back, ${username}` : "Dashboard"}
             </h1>
-            <p className="mt-2 text-sm text-gray-300 md:text-base">
-              {username
-                ? `Welcome back, ${username}. Create a server, join one with invite code, or open a server you already belong to.`
-                : "Create a server, join one with invite code, or open a server you already belong to."}
+            <p className="mt-3 max-w-2xl text-sm text-zinc-400 md:text-base">
+              Create servers, join communities with invite codes, and manage your
+              realtime collaboration space.
             </p>
           </div>
 
           <button
             onClick={handleLogout}
-            className="rounded-2xl bg-red-500 px-5 py-3 text-sm font-semibold transition hover:bg-red-400"
+            className="rounded-2xl border border-red-500/30 bg-red-500/10 px-5 py-3 text-sm font-semibold text-red-300 transition hover:bg-red-500/20"
           >
             Logout
           </button>
@@ -227,86 +230,94 @@ export default function DashboardPage() {
           </div>
         )}
 
-        <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-            <h2 className="text-xl font-semibold">Create Server</h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Start your own server and become admin automatically.
+     
+        <div className="mb-8 grid grid-cols-1 gap-4 md:grid-cols-3">
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <p className="text-sm text-zinc-400">Joined Servers</p>
+            <p className="mt-3 text-4xl font-bold">{loading ? "..." : servers.length}</p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <p className="text-sm text-zinc-400">Realtime Status</p>
+            <p className="mt-3 text-2xl font-bold text-emerald-400">Online</p>
+          </div>
+
+          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <p className="text-sm text-zinc-400">Workspace Mode</p>
+            <p className="mt-3 text-2xl font-bold text-blue-400">Echo SaaS</p>
+          </div>
+        </div>
+
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <h2 className="text-2xl font-semibold">Create Server</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              Start your own private workspace instantly.
             </p>
 
             <form onSubmit={handleCreateServer} className="mt-6 space-y-4">
               <input
                 type="text"
-                placeholder="Enter server name"
+                placeholder="Ex: Dev Team, Anime Gang, Startup Lab"
                 value={createName}
                 onChange={(e) => setCreateName(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-blue-400"
+                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-white outline-none placeholder:text-zinc-500 focus:border-blue-400"
               />
 
               <button
                 type="submit"
                 disabled={createLoading}
-                className="w-full rounded-2xl bg-blue-600 px-4 py-3 text-sm font-semibold transition hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full rounded-2xl bg-gradient-to-r from-blue-600 to-indigo-600 px-4 py-4 font-semibold transition hover:from-blue-500 hover:to-indigo-500 disabled:opacity-60"
               >
                 {createLoading ? "Creating..." : "Create Server"}
               </button>
             </form>
           </div>
 
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-            <h2 className="text-xl font-semibold">Join Server</h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Enter an invite code to join an existing server.
+          <div className="rounded-[28px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
+            <h2 className="text-2xl font-semibold">Join Server</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              Use an invite code to enter an existing server.
             </p>
 
             <form onSubmit={handleJoinServer} className="mt-6 space-y-4">
               <input
                 type="text"
-                placeholder="Enter invite code"
+                placeholder="Paste invite code"
                 value={inviteCode}
                 onChange={(e) => setInviteCode(e.target.value)}
-                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-3 text-sm text-white outline-none placeholder:text-gray-500 focus:border-emerald-400"
+                className="w-full rounded-2xl border border-white/10 bg-black/20 px-4 py-4 text-white outline-none placeholder:text-zinc-500 focus:border-emerald-400"
               />
 
               <button
                 type="submit"
                 disabled={joinLoading}
-                className="w-full rounded-2xl bg-emerald-600 px-4 py-3 text-sm font-semibold transition hover:bg-emerald-500 disabled:cursor-not-allowed disabled:opacity-70"
+                className="w-full rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 px-4 py-4 font-semibold transition hover:from-emerald-500 hover:to-teal-500 disabled:opacity-60"
               >
                 {joinLoading ? "Joining..." : "Join Server"}
               </button>
             </form>
           </div>
-
-          <div className="rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
-            <h2 className="text-xl font-semibold">Overview</h2>
-            <p className="mt-2 text-sm text-gray-400">
-              Click any joined server below to enter the chat page.
-            </p>
-
-            <div className="mt-6 rounded-2xl border border-white/10 bg-black/20 p-4">
-              <p className="text-sm text-gray-400">Joined servers</p>
-              <p className="mt-2 text-3xl font-bold text-white">
-                {loading ? "..." : servers.length}
-              </p>
-            </div>
-          </div>
         </div>
 
-        <div className="mt-8 rounded-3xl border border-white/10 bg-white/5 p-6 backdrop-blur-md">
+        
+        <div className="mt-8 rounded-[32px] border border-white/10 bg-white/5 p-6 backdrop-blur-xl">
           <div className="mb-6">
-            <h2 className="text-2xl font-semibold">Your Servers</h2>
-            <p className="mt-1 text-sm text-gray-400">
-              Open a server to go to its channels.
+            <p className="text-sm uppercase tracking-[0.2em] text-violet-400">
+              Workspaces
+            </p>
+            <h2 className="mt-2 text-3xl font-bold">Your Servers</h2>
+            <p className="mt-2 text-sm text-zinc-400">
+              Open a server to manage its channels and chat.
             </p>
           </div>
 
           {loading ? (
-            <div className="rounded-2xl border border-white/10 bg-black/20 p-6 text-gray-300">
+            <div className="rounded-3xl border border-white/10 bg-black/20 p-8 text-zinc-400">
               Loading servers...
             </div>
           ) : servers.length === 0 ? (
-            <div className="rounded-2xl border border-dashed border-white/10 bg-black/20 p-8 text-center text-gray-400">
+            <div className="rounded-3xl border border-dashed border-white/10 bg-black/20 p-10 text-center text-zinc-400">
               No joined servers yet. Create one or join one first.
             </div>
           ) : (
@@ -315,27 +326,27 @@ export default function DashboardPage() {
                 <button
                   key={server.id}
                   onClick={() => handleOpenServer(server.id)}
-                  className="rounded-3xl border border-white/10 bg-black/20 p-5 text-left transition hover:border-blue-400 hover:bg-white/10"
+                  className="group rounded-[28px] border border-white/10 bg-black/20 p-5 text-left transition hover:-translate-y-1 hover:border-blue-400 hover:bg-white/10"
                 >
                   <div className="flex items-center justify-between">
-                    <div className="flex h-12 w-12 items-center justify-center rounded-2xl bg-blue-600 text-lg font-bold">
+                    <div className="flex h-14 w-14 items-center justify-center rounded-2xl bg-gradient-to-br from-blue-600 to-violet-600 text-xl font-bold shadow-lg">
                       {server.name.charAt(0).toUpperCase()}
                     </div>
 
-                    <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-gray-300">
+                    <span className="rounded-full border border-white/10 px-3 py-1 text-xs text-zinc-300">
                       ID: {server.id}
                     </span>
                   </div>
 
-                  <h3 className="mt-4 text-lg font-semibold">{server.name}</h3>
+                  <h3 className="mt-5 text-xl font-semibold">{server.name}</h3>
 
-                  <p className="mt-2 text-sm text-gray-400">
+                  <p className="mt-2 text-sm text-zinc-400">
                     Invite Code: {server.invite_code || "N/A"}
                   </p>
 
-                  <p className="mt-2 text-sm text-gray-400">
-                    Click to enter this server.
-                  </p>
+                  <div className="mt-5 inline-flex items-center rounded-full border border-blue-500/20 bg-blue-500/10 px-3 py-1 text-xs font-medium text-blue-300">
+                    Open workspace
+                  </div>
                 </button>
               ))}
             </div>
