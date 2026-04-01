@@ -1,117 +1,199 @@
-A Discord-inspired full-stack chat application built using FastAPI and PostgreSQL with a modern frontend interface.
+# Echo
 
-This project demonstrates scalable backend architecture, secure authentication practices, and system design patterns used in modern collaboration platforms.
+### Realtime Community Chat Platform
 
-Features
+Echo is a Discord-inspired realtime chat application where users can create servers, join communities using invite codes, create channels, and chat live with other members.
 
-User registration with secure password hashing
+Built as a fullstack project to practice authentication, database design, REST APIs, permissions, and realtime communication using WebSockets.
 
-Server (workspace) creation
+---
 
-Automatic membership system
+## Features
 
-Channel-based chat organization
+- User registration and login
+- JWT authentication (access + refresh tokens)
+- Create and manage servers
+- Invite-code based server joining
+- Channel creation and deletion
+- Realtime channel messaging using WebSockets
+- Role and permission validation
+- Logged-in user based message alignment
+- PostgreSQL database integration
 
-Full-stack API integration
+---
 
-Clean and scalable architecture
+## Tech Stack
 
-Tech Stack
+### Frontend
+- Next.js
+- React
+- TypeScript
 
-Backend
+### Backend
+- FastAPI
+- SQLAlchemy
+- PostgreSQL
+- Pydantic
+- JWT Authentication
+- WebSockets
 
-FastAPI
+---
 
-PostgreSQL
+## Project Structure
 
-SQLAlchemy ORM
+```bash
+Echo/
+│
+├── backend/
+│   ├── app/
+│   │   ├── core/
+│   │   ├── crud/
+│   │   ├── db/
+│   │   ├── models/
+│   │   ├── routes/
+│   │   ├── schemas/
+│   │   └── main.py
+│   │
+│   └── requirements.txt
+│
+└── frontend/
+    ├── app/
+    ├── components/
+    ├── public/
+    └── package.json
+```
 
-Passlib (bcrypt hashing)
+---
 
-Pydantic
+## Main Functionalities
 
-Frontend
+### Authentication
+- Register and login system
+- JWT access token + refresh token flow
+- Protected routes using current user authentication
 
-React / Next.js (update if needed)
+### Server System
+- Users can create their own servers
+- Users can join servers using invite codes
+- Server membership is stored and validated
 
-REST API integration
+### Channel System
+- Channels belong to servers
+- Members can create channels
+- Channels can be deleted with proper permissions
 
-Architecture Overview
+### Realtime Chat
+- Live messaging inside channels using WebSockets
+- Messages are displayed differently for sender vs other users
+- Chat UI supports real-time communication flow
 
-Users can join multiple servers.
-Servers can contain multiple channels.
+---
 
-This architecture is similar to platforms such as Discord, Slack, and Microsoft Teams.
+## Local Setup
 
-Project Structure
-app/
- ├── core/          # security & configuration
- ├── crud/          # database operations
- ├── db/            # database setup & session
- ├── models/        # SQLAlchemy models
- ├── routes/        # API endpoints
- ├── schemas/       # request validation
- └── main.py        # application entry point
+### 1. Clone the repository
+```bash
+git clone <your-repo-url>
+cd Echo
+```
 
-Setup Instructions
-1. Clone the repository
-git clone <repo-url>
-cd <repo-folder>
+---
 
-2. Create virtual environment
+## Backend Setup
 
-Windows:
+### 2. Go to backend folder
+```bash
+cd backend
+```
 
+### 3. Create virtual environment
+```bash
 python -m venv venv
+```
+
+### 4. Activate virtual environment
+
+#### Windows
+```bash
 venv\Scripts\activate
+```
 
-
-Mac/Linux:
-
-python -m venv venv
+#### Mac/Linux
+```bash
 source venv/bin/activate
+```
 
-3. Install dependencies
-pip install fastapi uvicorn sqlalchemy psycopg2-binary passlib[bcrypt] pydantic email-validator
+### 5. Install dependencies
+```bash
+pip install -r requirements.txt
+```
 
-4. Configure PostgreSQL
+### 6. Configure environment variables
+Create a `.env` file inside the backend folder and add:
 
-Create a database and update:
+```env
+DATABASE_URL=your_postgresql_database_url
+SECRET_KEY=your_secret_key
+ALGORITHM=HS256
+ACCESS_TOKEN_EXPIRE_MINUTES=30
+REFRESH_TOKEN_EXPIRE_DAYS=7
+```
 
-app/db/database.py
-
-DATABASE_URL = "postgresql://user:password@localhost:5432/echo_db"
-
-5. Run the server
+### 7. Run backend server
+```bash
 python -m uvicorn app.main:app --reload
+```
 
+Backend runs on:
+```bash
+http://127.0.0.1:8000
+```
 
-Open:
+---
 
-http://127.0.0.1:8000/docs
+## Frontend Setup
 
-Security
+### 8. Go to frontend folder
+```bash
+cd ../frontend
+```
 
-Passwords are hashed using bcrypt. Plain-text passwords are never stored.
+### 9. Install dependencies
+```bash
+npm install
+```
 
-API Endpoints
+### 10. Run frontend
+```bash
+npm run dev
+```
 
-POST /register — register a new user
-POST /servers — create a server
-POST /channels — create a channel
+Frontend runs on:
+```bash
+http://localhost:3000
+```
 
-Upcoming Improvements
+---
 
-Message system
+## Future Improvements
 
-JWT authentication
+- Better UI styling
+- Typing indicators
+- Online/offline user presence
+- Message timestamps formatting
+- Edit/delete messages
+- File/image sharing
+- Deployment for live demo
 
-Real-time messaging
+---
 
-Permissions and roles
+## Status
 
-Invite system
+✅ Core project completed  
+🚧 Deployment not added yet
 
-Author
+---
 
-Ayush
+## Author
+
+Built by **Ayush**
